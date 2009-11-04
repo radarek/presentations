@@ -1,0 +1,3 @@
+/(?<foo>.*)/ =~ "bar"
+
+puts foo

@@ -1,0 +1,652 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+  <head>
+    <title>Ruby 1.9 - nowości i zmiany</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="generator" content="S5" />
+    <meta name="version" content="S5 1.1" />
+    <meta name="presdate" content="20050728" />
+    <meta name="author" content="Eric A. Meyer" />
+    <meta name="company" content="Complex Spiral Consulting" />
+    <!-- configuration parameters -->
+    <meta name="defaultView" content="slideshow" />
+    <meta name="controlVis" content="hidden" />
+    <!-- style sheet links -->
+    <link rel="stylesheet" href="ui/i18n/slides.css" type="text/css" media="projection" id="slideProj" />
+    <link rel="stylesheet" href="ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+    <link rel="stylesheet" href="ui/default/print.css" type="text/css" media="print" id="slidePrint" />
+    <link rel="stylesheet" href="ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+    <!-- embedded styles -->
+    <style type="text/css" media="all">
+      .imgcon {width: 525px; margin: 0 auto; padding: 0; text-align: center;}
+      #anim {width: 270px; height: 320px; position: relative; margin-top: 0.5em;}
+      #anim img {position: absolute; top: 42px; left: 24px;}
+      img#me01 {top: 0; left: 0;}
+      img#me02 {left: 23px;}
+      img#me04 {top: 44px;}
+      img#me05 {top: 43px;left: 36px;}
+    </style>
+    <!-- S5 JS -->
+    <script src="ui/default/slides.js" type="text/javascript"></script>
+
+    <!--
+    
+      <link rel="stylesheet" href="style/css/active4d.css" type="text/css" media="all" />
+    
+      <link rel="stylesheet" href="style/css/blackboard.css" type="text/css" media="all" />
+    
+      <link rel="stylesheet" href="style/css/dawn.css" type="text/css" media="all" />
+    
+      <link rel="stylesheet" href="style/css/idle.css" type="text/css" media="all" />
+    
+      <link rel="stylesheet" href="style/css/lazy.css" type="text/css" media="all" />
+    
+      <link rel="stylesheet" href="style/css/pastels_on_dark.css" type="text/css" media="all" />
+    
+      <link rel="stylesheet" href="style/css/slush_poppies.css" type="text/css" media="all" />
+    
+      <link rel="stylesheet" href="style/css/spacecadet.css" type="text/css" media="all" />
+    
+      <link rel="stylesheet" href="style/css/twilight.css" type="text/css" media="all" />
+    
+    -->
+    <link rel="stylesheet" href="style/css/twilight.css" type="text/css" media="all" />
+    <style type="text/css" media="all">
+      .blank {
+        list-style: none;
+      }
+
+      .slide_x {
+        display: none;
+      }
+
+      pre {
+        text-shadow: none !important;
+        padding: 0.5em;
+        background: #141414;
+        color: #f8f8f8;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="layout">
+
+      <div id="controls"></div>
+      <div id="currentSlide"></div>
+      <div id="header"></div>
+      <div id="footer">
+        <h1>Ruby 1.9 - nowości i zmiany</h1>
+        <h2>Radosław Bułat</h2>
+      </div>
+
+    </div>
+    <div class="presentation">
+
+      <div class="slide">
+        <h1>Ruby 1.9 - nowości i zmiany</h1>
+        <h2>KRUG, Kraków 27.10.2009</h2>
+        <h3>Radosław Bułat</h3>
+        <h4>Blog: <a href="http://radarek.jogger.pl">http://radarek.jogger.pl</a></h4>
+        <p>Ruby (on Rails) developer w <img style="vertical-align: middle;" src="images/adtaily.png" /></p>
+      </div>
+
+      <div class="slide">
+        <h1>diff ruby1.8 ruby1.9</h1>
+        <ul class="incremental">
+          <li>
+            Zmiany w interpreterze
+            <ul>
+              <li>maszyna wirtualna (YARV)</li>
+              <li>natywne wątki</li>
+            </ul>
+          </li>
+          <li>
+            Zmiany w języku
+            <ul>
+              <li>składnia</li>
+              <li>semantyka</li>
+              <li>core</li>
+              <li>stdlib</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Maszyna wirtualna YARV</h1>
+        <ul class="incremental">
+          <li>interpretacja "bajtkodu"
+            <ul>
+              <li>do tej pory bezpośrednia interpretacja sparsowanego drzewa (parse tree) - wolne i niefektywne</li>
+            </ul>
+          </li>
+
+          <li>
+            natywne wątki zastąpiły zielone wątki (green threads)
+            <ul>
+              <li>obecny GIL (Global Interpreter Lock) nie pozwala na jednoczesne działanie</li>
+              <li>można zwolnić GIL na poziomie API C - funkcja rb_thread_blocking_region</li>
+            </ul>
+          </li>
+
+          <li>mniejsze zużycie pamięci</li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Wydajność</h1>
+        <ul class="incremental">
+          <li>There are lies, statistics, and benchmarks</li>
+          <li>
+            Proste benchmarki - 2-4x szybszy od 1.8
+            <p style="text-align: center;">
+            <img src="images/bm-chart.png" alt="ruby interpreters benchmark chart"/>
+            </p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Wydajność cd.</h1>
+        <ul class="incremental">
+          <li>
+            W praktyce może zależeć od wielu czynników, np.:
+            <ul>
+              <li>wykorzystania GC</li>
+              <li>wielkości stosu</li>
+              <li>rodzaju wąskiego gardła</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Nowy operator lambdy: -&gt;</h1>
+
+        <ul class="incremental">
+          <li class="blank">
+            <pre class="twilight">mul2_first  <span class="Keyword">=</span> lambda {|<span class="Variable">x</span>| x <span class="Keyword">*</span> <span class="Constant">2</span> }
+mul2_second <span class="Keyword">=</span> <span class="Keyword">-</span><span class="Keyword">&gt;</span>(x) { x <span class="Keyword">*</span> <span class="Constant">2</span> }
+
+<span class="Comment"><span class="Comment">#</span> można także ominąć () ale w ten sposób raczej pogarszamy czytelność</span>
+mul2_third  <span class="Keyword">=</span> <span class="Keyword">-</span><span class="Keyword">&gt;</span> x { x <span class="Keyword">*</span> <span class="Constant">2</span> }
+</pre>
+          </li>
+          <li>w odróżnieniu od tradycyjnej lambdy jest to operator a nie metoda</li>
+          <li>dodana by umożliwić używania domyślnych parametrów, &amp;block params</li>
+          <li class="blank">
+            <pre class="twilight">l <span class="Keyword">=</span> <span class="Keyword">-</span><span class="Keyword">&gt;</span>(a, b <span class="Keyword">=</span> <span class="Constant">100</span>, <span class="Keyword">*</span>c, <span class="Keyword">&amp;</span>d) <span class="Keyword">do</span>
+  p [a, b, c, d.()]
+<span class="Keyword">end</span>
+
+l.(<span class="Constant">1</span>, <span class="Constant">2</span>, <span class="Constant">3</span>, <span class="Constant">4</span>) { <span class="Constant">5</span> }
+</pre>
+            <pre style="margin: 0 0.5em 0 0.5em;">[1, 2, [3, 4], 5]
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Stara lambda na sterydach</h1>
+
+        <ul class="incremental">
+          <li>ponoć były problemy (parser) by stara lambda obsługiwała domyślne parametry, &amp;block params</li>
+          <li>przyszedł ktoś mądry, który tego nie wiedział i zrobił to</li>
+          <li class="blank">
+            <pre class="twilight">l <span class="Keyword">=</span> lambda <span class="Keyword">do </span>|<span class="Variable">a</span>, <span class="Variable">b</span> = 100, *<span class="Variable">c</span>, &amp;<span class="Variable">d</span>|
+  p [a, b, c, d.()]
+<span class="Keyword">end</span>
+
+l.<span class="Entity">call</span>(<span class="Constant">1</span>, <span class="Constant">2</span>, <span class="Constant">3</span>, <span class="Constant">4</span>) { <span class="Constant">5</span> }
+</pre>
+            <pre style="margin: 0 0.5em 0 0.5em;">[1, 2, [3, 4], 5]
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Splat operator</h1>
+
+        <ul class="incremental">
+          <li>operator splat jest teraz bardziej elastyczny</li>
+          <li class="blank">
+            <pre class="twilight">arr1 <span class="Keyword">=</span> <span class="String"><span class="String">%w(</span>foo bar baz<span class="String">)</span></span>
+arr2 <span class="Keyword">=</span> [<span class="Constant">1</span>, <span class="Constant">2</span>, <span class="Constant">3</span>]
+[<span class="Keyword">*</span>arr1, <span class="String"><span class="String">&quot;</span>a<span class="String">&quot;</span></span>, <span class="Keyword">*</span>arr2]
+<span class="Comment"><span class="Comment">#</span>=&gt; [&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;, &quot;a&quot;, 1, 2, 3]</span>
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Bloki</h1>
+
+        <ul class="incremental">
+          <li>zmieniony zasięg parametrów - lokalny w stosunku do bloku</li>
+          <li class="blank">
+            <pre class="twilight">i <span class="Keyword">=</span> <span class="String"><span class="String">&quot;</span>hello<span class="String">&quot;</span></span>
+<span class="Constant">3</span>.<span class="Entity">times</span> {|<span class="Variable">i</span>| puts i }
+puts i
+</pre>
+          </li>
+
+          <li>
+            semantyka parametrów taka jak metod, a więc nie zadziała już
+            <pre class="twilight">h <span class="Keyword">=</span> {}
+[<span class="Constant">1</span>, <span class="Constant">2</span>, <span class="Constant">3</span>].<span class="Entity">each_with_index</span> <span class="Keyword">do </span>|@<span class="Variable">a</span>, <span class="Variable">h</span>[&quot;<span class="Variable">a</span>&quot;]|
+  p [<span class="Variable"><span class="Variable">@</span>a</span>, h[<span class="String"><span class="String">&quot;</span>a<span class="String">&quot;</span></span>]]
+<span class="Keyword">end</span>
+</pre>
+           </li>
+
+          <li>proc jest aliasem do Proc.new, a nie jak do tej pory lambda</li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Parametry metod</h1>
+
+        <ul class="incremental">
+          <li>
+            wymagane parametry po opcjonalnych
+          </li>
+          <li class="blank"><pre class="twilight"><span class="Keyword">def</span> <span class="Entity">foo</span>(<span class="Variable">a<span class="Variable">,</span> b <span class="Keyword">=</span> <span class="Constant">10</span><span class="Variable">,</span> <span class="Keyword">*</span>rest<span class="Variable">,</span> c</span>)
+  p [a, b, rest, c]
+<span class="Keyword">end</span>
+
+<span class="Keyword">class</span> <span class="Entity">MyArray<span class="EntityInheritedClass"> <span class="EntityInheritedClass">&lt;</span> Array</span></span>
+  <span class="Keyword">def</span> <span class="Entity">[]=</span>(<span class="Variable"><span class="Keyword">*</span>args<span class="Variable">,</span> value</span>)
+    p [args, value]
+  <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+
+arr <span class="Keyword">=</span> <span class="Support">MyArray</span>.<span class="Entity">new</span>
+arr[<span class="Constant">1</span>, <span class="Constant">2</span>, <span class="Constant">3</span>] <span class="Keyword">=</span> <span class="String"><span class="String">&quot;</span>foo<span class="String">&quot;</span></span>
+arr[<span class="Constant">100</span>] <span class="Keyword">=</span> <span class="String"><span class="String">&quot;</span>bar<span class="String">&quot;</span></span>
+</pre></li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Parametry metod cd.</h1>
+
+        <ul class="incremental">
+          <li>grupowanie parametrów</li>
+          <li class="blank"><pre class="twilight"><span class="Keyword">def</span> <span class="Entity">foo</span>(<span class="Variable">a<span class="Variable">,</span> <span class="Variable">(</span>b<span class="Variable">,</span> c<span class="Variable">,</span> <span class="Keyword">*</span>d</span>))
+  p [a, b, c, d]
+<span class="Keyword">end</span>
+
+<span class="Entity">foo</span>(<span class="Constant">1</span>, <span class="Constant">2</span>)         <span class="Comment"><span class="Comment">#</span> a = 1, b = 2, c = nil, d = []</span>
+<span class="Entity">foo</span>(<span class="Constant">1</span>, [])        <span class="Comment"><span class="Comment">#</span> a = 1, b = nil, c = nil, d = []</span>
+<span class="Entity">foo</span>(<span class="Constant">1</span>, [<span class="Constant">2</span>, <span class="Constant">3</span>])    <span class="Comment"><span class="Comment">#</span> a = 1, b = 2, c = 3, d = []</span>
+<span class="Entity">foo</span>(<span class="Constant">1</span>, [<span class="Constant">2</span>, <span class="Constant">3</span>, <span class="Constant">4</span>]) <span class="Comment"><span class="Comment">#</span> a = 1, b = 2, c = 3, d = [4]</span>
+</pre></li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Hash</h1>
+        <ul class="incremental blank">
+          <li>
+            Nowa składnia dla kluczy będącymi symbolami:
+            <pre class="twilight"><span class="Comment"><span class="Comment">#</span> stary sposób</span>
+{<span class="Constant"><span class="Constant">:</span>a</span> =&gt; <span class="Constant">1</span>, <span class="Constant"><span class="Constant">:</span>b</span> =&gt; <span class="Constant">2</span>}
+
+<span class="Comment"><span class="Comment">#</span> nowy sposób</span>
+{a: <span class="Constant">1</span>, b: <span class="Constant">2</span>}
+</pre>
+          </li>
+          <li>
+          <pre class="twilight"><span class="Support">User</span>.<span class="Entity">find</span>(<span class="Constant"><span class="Constant">:</span>all</span>, <span class="Constant"><span class="Constant">:</span>order</span> =&gt; <span class="String"><span class="String">&quot;</span>login<span class="String">&quot;</span></span>, <span class="Constant"><span class="Constant">:</span>limit</span> =&gt; <span class="Constant">5</span>)
+<span class="Support">User</span>.<span class="Entity">find</span>(<span class="Constant"><span class="Constant">:</span>all</span>, order: <span class="String"><span class="String">&quot;</span>login<span class="String">&quot;</span></span>, limit: <span class="Constant">5</span>)
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>BasicObject - nadklasa Object</h1>
+
+        <ul class="incremental">
+          <p style="text-align: center;">
+            <img src="images/class-hierarchy.png" />
+          </p>
+          <li>Object.superclass =&gt; BasicObject</li>
+          <li>bazową (domyślną) klasą pozostaje wciąż Object</li>
+          <li>przydatne przy pisaniu wrapperów, proxy</li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Enumerable - nowe metody take, take_while, group_by, drop, min_by, max_by, count, minmax</h1>
+
+        <ul class="incremental">
+          <li>sporo nowych metod</li>
+          <li>Enumerable.instance_methods(false).size - 22 dla 1.8, 47 dla 1.9</li>
+          <li class="blank">
+            <pre class="twilight">a <span class="Keyword">=</span> [<span class="Constant">5</span>, <span class="Constant">3</span>, <span class="Constant">1</span>, <span class="Constant">1</span>, <span class="Constant">4</span>, <span class="Constant">8</span>, <span class="Constant">7</span>]
+a.<span class="Entity">take</span>(<span class="Constant">2</span>) <span class="Comment"><span class="Comment">#</span>=&gt; [5, 3]</span>
+a.<span class="Entity">take_while</span> {|<span class="Variable">e</span>| e <span class="Keyword">!=</span> <span class="Constant">1</span> }
+a.<span class="Entity">group_by</span> {|<span class="Variable">e</span>| e <span class="Keyword">%</span> <span class="Constant">2</span> } <span class="Comment"><span class="Comment">#</span>=&gt; {1=&gt;[5, 3, 1, 1, 7], 0=&gt;[4, 8]}</span>
+a.<span class="Entity">minmax</span> <span class="Comment"><span class="Comment">#</span>=&gt; [1, 8]</span>
+a.<span class="Entity">count</span> {|<span class="Variable">e</span>| e <span class="Keyword">&lt;</span> <span class="Constant">6</span> } <span class="Comment"><span class="Comment">#</span>=&gt; 6</span>
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Zewnętrzne iteratory - Enumerator</h1>
+
+        <ul class="incremental">
+          <li>wewnętrzne iteratory są prostsze w użyciu</li>
+          <li>ale mają wady - jak iterować równolegle po wielu kolekcjach?</li>
+          <li class="blank">
+            <pre class="twilight">numbers <span class="Keyword">=</span> [<span class="Constant">10</span>, <span class="Constant">100</span>, <span class="Constant">123</span>]
+pairs <span class="Keyword">=</span> { <span class="String"><span class="String">&quot;</span>one<span class="String">&quot;</span></span> =&gt; <span class="String"><span class="String">&quot;</span>foo<span class="String">&quot;</span></span>, <span class="String"><span class="String">&quot;</span>two<span class="String">&quot;</span></span> =&gt; <span class="String"><span class="String">&quot;</span>bar<span class="String">&quot;</span></span>, <span class="String"><span class="String">&quot;</span>three<span class="String">&quot;</span></span> =&gt; <span class="String"><span class="String">&quot;</span>baz<span class="String">&quot;</span></span> }
+
+e1 <span class="Keyword">=</span> numbers.<span class="Entity">each</span>
+e2 <span class="Keyword">=</span> pairs.<span class="Entity">each</span>
+
+<span class="Keyword">loop</span> <span class="Keyword">do</span>
+  p [e1.<span class="Entity">next</span>, e2.<span class="Entity">next</span>]
+<span class="Keyword">end</span>
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Enumerator#with_index</h1>
+
+        <ul class="incremental">
+          <li>map_with_index, select_with_index - zawsze czegoś brakuje</li>
+          <li>Enumerator#with_index opakowuje iterator dodając dodatkowy parametr indeksu</li>
+          <li class="blank">
+            <pre class="twilight">file <span class="Keyword">=</span> <span class="Support">File</span>.<span class="Entity">open</span>(<span class="Variable">__FILE__</span>)
+file.<span class="Entity">each_line</span>.<span class="Entity">with_index</span> <span class="Keyword">do </span>|<span class="Variable">line</span>, <span class="Variable">i</span>|
+  puts <span class="String"><span class="String">&quot;</span><span class="StringEmbeddedSource"><span class="StringEmbeddedSource">#{</span>i<span class="StringEmbeddedSource">}</span></span>: <span class="StringEmbeddedSource"><span class="StringEmbeddedSource">#{</span>line<span class="StringEmbeddedSource">}</span></span><span class="String">&quot;</span></span>
+<span class="Keyword">end</span>
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Enumerator.new</h1>
+
+        <ul class="incremental">
+          <li>tworzy nowy, zewnętrzny iterator</li>
+          <li>nie trzeba konwertować za pomocą enum_for</li>
+          <li class="blank">
+            <pre class="twilight">fib <span class="Keyword">=</span> <span class="Support">Enumerator</span>.<span class="Entity">new</span> <span class="Keyword">do </span>|<span class="Variable">y</span>|
+ a <span class="Keyword">=</span> b <span class="Keyword">=</span> <span class="Constant">1</span>
+ <span class="Keyword">loop</span> <span class="Keyword">do</span>
+   y <span class="Keyword">&lt;&lt;</span> a
+   a, b <span class="Keyword">=</span> b, a <span class="Keyword">+</span> b
+ <span class="Keyword">end</span>
+<span class="Keyword">end</span>
+
+p fib.<span class="Entity">take</span>(<span class="Constant">10</span>) <span class="Comment"><span class="Comment">#</span>=&gt; [1, 1, 2, 3, 5, 8, 13, 21, 34, 55]</span>
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Kodowania znaków</h1>
+
+        <ul class="incremental">
+          <li>do tej pory brak wsparcia kodowania znaków</li>
+          <li>String nie jest już "enumerable" (wyliczenie czego? linii? znaków? bajtów?)</li>
+          <li>each_line, each_char, each_byte</li>
+          <li>poprawna obsługa metod takich jak reverse, size (length), [], slice itp.</li>
+          <li class="blank">
+            <pre class="twilight"><span class="Comment"><span class="Comment">#</span> encoding: utf-8</span>
+
+puts <span class="String"><span class="String">&quot;</span>ąęć<span class="String">&quot;</span></span>.<span class="Entity">reverse</span> <span class="Comment"><span class="Comment">#</span>=&gt; &quot;ćęą&quot;</span>
+puts <span class="String"><span class="String">&quot;</span>ąęć<span class="String">&quot;</span></span>.<span class="Entity">size</span> <span class="Comment"><span class="Comment">#</span>=&gt; 3</span>
+puts <span class="String"><span class="String">&quot;</span>ąęć<span class="String">&quot;</span></span>.<span class="Entity">bytesize</span> <span class="Comment"><span class="Comment">#</span>=&gt; 6</span>
+puts <span class="String"><span class="String">&quot;</span>ąęć<span class="String">&quot;</span></span>[<span class="Constant">0</span>] <span class="Comment"><span class="Comment">#</span>=&gt; &quot;ą&quot;</span>
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Klasa Encoding</h1>
+
+        <ul class="incremental">
+          <li>każdy string posiada jakieś kodowanie</li>
+          <li>różne stringi mogą posiadać różne kodowania w "tym samym programie"</li>
+
+          <li class="blank">
+            <pre class="twilight"><span class="Comment"><span class="Comment">#</span> encoding: utf-8</span>
+
+s <span class="Keyword">=</span> <span class="String"><span class="String">&quot;</span>Hello World!<span class="String">&quot;</span></span>
+puts s.<span class="Entity">encoding</span>.<span class="Entity">class</span>
+puts s.<span class="Entity">encoding</span>.<span class="Entity">name</span>
+</pre>
+            <pre style="margin: 0 0.5em 0 0.5em;">Encoding
+UTF-8
+</pre>
+          </li>
+
+          <li>Nowa pseudostała __ENCODING__</li>
+          <li class="blank">
+            <pre class="twilight"><span class="Comment"><span class="Comment">#</span> encoding: utf-8</span>
+
+puts <span class="String"><span class="String">&quot;</span>Ten plik został zakodowany przy użyciu kodowania: <span class="StringEmbeddedSource"><span class="StringEmbeddedSource">#{</span>__ENCODING__<span class="StringEmbeddedSource"><span class="StringEmbeddedSource">.</span><span class="Entity">name</span></span><span class="StringEmbeddedSource">}</span></span><span class="String">&quot;</span></span>
+</pre>
+            <pre style="margin: 0 0.5em 0 0.5em;">Ten plik został zakodowany przy użyciu kodowania: UTF-8
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Konwersja do innego kodowania</h1>
+
+        <ul class="incremental">
+          <li class="blank">
+            <pre class="twilight"><span class="Comment"><span class="Comment">#</span> encoding: utf-8</span>
+
+str <span class="Keyword">=</span> <span class="String"><span class="String">&quot;</span>ąęć<span class="String">&quot;</span></span>
+puts str.<span class="Entity">encoding</span>
+p str.<span class="Entity">bytes</span>.<span class="Entity">to_a</span>
+
+str_iso <span class="Keyword">=</span> str.<span class="Entity">encode</span>(<span class="String"><span class="String">&quot;</span>iso-8859-2<span class="String">&quot;</span></span>)
+puts str_iso.<span class="Entity">encoding</span>
+p str_iso.<span class="Entity">bytes</span>.<span class="Entity">to_a</span>
+</pre>
+            <pre style="margin: 0 0.5em 0 0.5em;">UTF-8
+[196, 133, 196, 153, 196, 135]
+ISO-8859-2
+[177, 234, 230]
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>(default_)external_encoding, (default_)internal_encoding</h1>
+
+        <ul class="incremental">
+          <li class="blank">
+            <pre class="twilight">data <span class="Keyword">=</span> <span class="Support">File</span>.<span class="Entity">read</span>(
+    <span class="String"><span class="String">&quot;</span>/etc/passwd<span class="String">&quot;</span></span>,
+    external_encoding: <span class="String"><span class="String">&quot;</span>ascii<span class="String">&quot;</span></span>,
+    internal_encoding: <span class="String"><span class="String">&quot;</span>utf-8<span class="String">&quot;</span></span>
+)
+puts data.<span class="Entity">encoding</span>
+</pre>
+            <pre style="margin: 0 0.5em 0 0.5em;">UTF-8
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Hash - zachowana kolejność kluczy</h1>
+        <pre class="twilight">h <span class="Keyword">=</span> {}; h[<span class="String"><span class="String">&quot;</span>c<span class="String">&quot;</span></span>] <span class="Keyword">=</span> <span class="Constant">3</span>; h[<span class="String"><span class="String">&quot;</span>a<span class="String">&quot;</span></span>] <span class="Keyword">=</span> <span class="Constant">1</span>; h[<span class="String"><span class="String">&quot;</span>b<span class="String">&quot;</span></span>] <span class="Keyword">=</span> <span class="Constant">2</span>
+h.<span class="Entity">each</span> <span class="Keyword">do </span>|<span class="Variable">k</span>, <span class="Variable">v</span>|
+  p [k, v]
+<span class="Keyword">end</span>
+
+</pre>
+        <ul class="blank">
+          <li>
+          1.8
+          <pre style="margin: 0 0.5em 0 0.5em;">["a", 1]
+["b", 2]
+["c", 3]
+</pre>
+          </li>
+
+          <li>
+          1.9
+          <pre style="margin: 0 0.5em 0 0.5em;">["c", 3]
+["a", 1]
+["b", 2]
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Aktualizacja silnika regexpów (Oniguruma)</h1>
+
+        <ul class="incremental">
+          <li class="blank">
+            <pre class="twilight">text <span class="Keyword">=</span> <span class="String"><span class="String">&quot;</span>Yukihiro Matsuomoto<span class="String">&quot;</span></span>
+
+m <span class="Keyword">=</span> text.<span class="Entity">match</span>(<span class="StringRegexp"><span class="StringRegexp">/</span></span><span class="StringRegexp"><span class="StringRegexp"><span class="StringRegexp">(</span>?&lt;first_name&gt;<span class="StringRegexpSpecial">\w</span>+<span class="StringRegexp">)</span></span><span class="StringRegexpSpecial">\s</span>+<span class="StringRegexp"><span class="StringRegexp">(</span>?&lt;last_name&gt;<span class="StringRegexpSpecial">\w</span>+<span class="StringRegexp">)</span></span></span><span class="StringRegexp"><span class="StringRegexp">/</span></span>)
+puts m[<span class="String"><span class="String">&quot;</span>first_name<span class="String">&quot;</span></span>] <span class="Comment"><span class="Comment">#</span>=&gt; &quot;Yukihiro&quot;</span>
+puts m[<span class="String"><span class="String">&quot;</span>last_name<span class="String">&quot;</span></span>]  <span class="Comment"><span class="Comment">#</span>=&gt; &quot;Matsumoto&quot;</span>
+</pre>
+          </li>
+          <li class="blank">
+            <pre class="twilight"><span class="StringRegexp"><span class="StringRegexp">/</span></span><span class="StringRegexp"><span class="StringRegexp"><span class="StringRegexp">(</span>?&lt;foo&gt;.*<span class="StringRegexp">)</span></span></span><span class="StringRegexp"><span class="StringRegexp">/</span></span> <span class="Keyword">=~</span> <span class="String"><span class="String">&quot;</span>bar<span class="String">&quot;</span></span>
+
+puts foo
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Symbol#to_proc wbudowane w core</h1>
+
+        <ul class="incremental">
+          <li class="blank">
+            <pre class="twilight">a <span class="Keyword">=</span> [<span class="String"><span class="String">&quot;</span>1<span class="String">&quot;</span></span>, <span class="String"><span class="String">&quot;</span>2<span class="String">&quot;</span></span>, <span class="String"><span class="String">&quot;</span>3<span class="String">&quot;</span></span>, <span class="String"><span class="String">&quot;</span>4<span class="String">&quot;</span></span>]
+puts a.<span class="Entity">map</span>(<span class="Keyword">&amp;</span><span class="Constant"><span class="Constant">:</span>to_i</span>).<span class="Entity">inject</span>(<span class="Constant"><span class="Constant">:</span>+</span>)
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Object#tap</h1>
+
+        <ul class="incremental">
+          <li>ułatwiaj debugowanie długich, łańcuchowych wywołań</li>
+          <li class="blank">
+            <pre class="twilight">[<span class="String"><span class="String">&quot;</span>foo<span class="String">&quot;</span></span>, <span class="String"><span class="String">&quot;</span>bar<span class="String">&quot;</span></span>, <span class="String"><span class="String">&quot;</span>baz<span class="String">&quot;</span></span>].<span class="Entity">sort</span>.<span class="Entity">grep</span>(<span class="StringRegexp"><span class="StringRegexp">/</span></span><span class="StringRegexp">foo</span><span class="StringRegexp"><span class="StringRegexp">/</span></span>).<span class="Entity">tap</span> {|<span class="Variable">o</span>| p o }.<span class="Entity">map</span>(<span class="Keyword">&amp;</span><span class="Constant"><span class="Constant">:</span>size</span>)
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Nowa biblioteka w stdlib: prime</h1>
+
+        <ul class="incremental">
+          <li>biblioteka operująca na liczbach pierwszych</li>
+          <li>wyznaczanie liczb pierwszych, sprawdzanie liczby czy pierwsza</li>
+          <li class="blank">
+            <pre class="twilight"><span class="Keyword">require</span> <span class="String"><span class="String">&quot;</span>prime<span class="String">&quot;</span></span>
+puts <span class="Constant">600851475143</span>.<span class="Entity">prime_division</span>.<span class="Entity">max</span>.<span class="Entity">first</span>
+</pre>
+          </li>
+          <li class="blank">
+            <pre class="twilight"><span class="Keyword">require</span> <span class="String"><span class="String">&quot;</span>prime<span class="String">&quot;</span></span>
+puts (<span class="Constant">2</span>..<span class="Constant">1000</span>).<span class="Entity">select</span>(<span class="Keyword">&amp;</span><span class="Constant"><span class="Constant">:</span>prime?</span>)
+puts (<span class="Constant">2</span>..<span class="Constant">1000</span>).<span class="Entity">count</span>(<span class="Keyword">&amp;</span><span class="Constant"><span class="Constant">:</span>prime?</span>)
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Ruby vs Python</h1>
+        <ul class="incremental blank">
+          <li>
+<pre>$ cat hello_world.rb 
+puts "Hello World!"
+</pre>
+          </li>
+          <li>
+<pre>$ ruby-trunk -v
+ruby 1.9.2dev (2009-10-17 trunk 25387) [x86_64-linux]
+</pre>
+          </li>
+          <li>
+          <pre style="margin: 0 0.5em 0 0.5em;">Hello World!
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1 style="font-size: 3em; margin: 2em 0 1.5em;">Hello World!</h1>
+      </div>
+
+      <div class="slide">
+        <h1>Ruby vs Python</h1>
+        <ul class="incremental blank">
+          <li>
+<pre>
+$ cat hello_world.py
+print "Hello World!"
+</pre>
+          </li>
+          <li>
+<pre>
+$ python3 --version
+Python 3.0.1+
+</pre>
+          </li>
+          <li>
+          <pre style="margin: 0 0.5em 0 0.5em;">  File "/home/radarek/blog/prezentacja/code/hello_world.py", line 1
+    print "Hello World!"
+                       ^
+SyntaxError: invalid syntax
+</pre>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1 style="font-size: 3em; margin: 2em 0 1.5em;">SyntaxError: invalid syntax</h1>
+      </div>
+
+      <div class="slide">
+        <h1 style="margin: 3em 0 1.5em;">Dziękuję za uwagę!</h1>
+        <h3>Radosław Bułat</h3>
+        <h4>Blog: <a href="http://radarek.jogger.pl">http://radarek.jogger.pl</a></h4>
+        <p>Ruby (on Rails) developer w <img style="vertical-align: middle;" src="images/adtaily.png" /></p>
+      </div>
+
+    </div>
+
+  </body>
+</html>
+

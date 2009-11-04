@@ -1,0 +1,508 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<%
+  # setup things
+
+  require "rubygems"
+  require "uv"
+
+  $themes = %w(active4d blackboard dawn idle lazy pastels_on_dark slush_poppies spacecadet twilight)
+  DEFAULT_THEME = "twilight"
+  CODE_DIRECTORY = File.expand_path(File.dirname(__FILE__) + "/../code/")
+
+  def source(options = {})
+    if options[:file] && !options[:file].start_with?("/")
+      options[:file] = File.join(CODE_DIRECTORY, options[:file])
+    end
+
+    text = options[:code] || File.read(options[:file])
+    Uv.parse(text, "xhtml", "ruby", false, options[:theme] || DEFAULT_THEME)
+  end
+
+  def output(cmd, file)
+    if !file.start_with?("/")
+      file = File.join(CODE_DIRECTORY, file)
+    end
+    return '<pre style="margin: 0 0.5em 0 0.5em;">' + `#{cmd} '#{file}' 2>&1` + "</pre>"
+  end
+%>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+  <head>
+    <title>Ruby 1.9 - nowości i zmiany</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="generator" content="S5" />
+    <meta name="version" content="S5 1.1" />
+    <meta name="presdate" content="20050728" />
+    <meta name="author" content="Eric A. Meyer" />
+    <meta name="company" content="Complex Spiral Consulting" />
+    <!-- configuration parameters -->
+    <meta name="defaultView" content="slideshow" />
+    <meta name="controlVis" content="hidden" />
+    <!-- style sheet links -->
+    <link rel="stylesheet" href="ui/i18n/slides.css" type="text/css" media="projection" id="slideProj" />
+    <link rel="stylesheet" href="ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+    <link rel="stylesheet" href="ui/default/print.css" type="text/css" media="print" id="slidePrint" />
+    <link rel="stylesheet" href="ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+    <!-- embedded styles -->
+    <style type="text/css" media="all">
+      .imgcon {width: 525px; margin: 0 auto; padding: 0; text-align: center;}
+      #anim {width: 270px; height: 320px; position: relative; margin-top: 0.5em;}
+      #anim img {position: absolute; top: 42px; left: 24px;}
+      img#me01 {top: 0; left: 0;}
+      img#me02 {left: 23px;}
+      img#me04 {top: 44px;}
+      img#me05 {top: 43px;left: 36px;}
+    </style>
+    <!-- S5 JS -->
+    <script src="ui/default/slides.js" type="text/javascript"></script>
+
+    <!--
+    <% $themes.each do |theme| %>
+      <link rel="stylesheet" href="style/css/<%= theme %>.css" type="text/css" media="all" />
+    <% end %>
+    -->
+    <link rel="stylesheet" href="style/css/<%= DEFAULT_THEME %>.css" type="text/css" media="all" />
+    <style type="text/css" media="all">
+      .blank {
+        list-style: none;
+      }
+
+      .slide_x {
+        display: none;
+      }
+
+      pre {
+        text-shadow: none !important;
+        padding: 0.5em;
+        background: #141414;
+        color: #f8f8f8;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="layout">
+
+      <div id="controls"></div>
+      <div id="currentSlide"></div>
+      <div id="header"></div>
+      <div id="footer">
+        <h1>Ruby 1.9 - nowości i zmiany</h1>
+        <h2>Radosław Bułat</h2>
+      </div>
+
+    </div>
+    <div class="presentation">
+
+      <div class="slide">
+        <h1>Ruby 1.9 - nowości i zmiany</h1>
+        <h2>KRUG, Kraków 27.10.2009</h2>
+        <h3>Radosław Bułat</h3>
+        <h4>Blog: <a href="http://radarek.jogger.pl">http://radarek.jogger.pl</a></h4>
+        <p>Ruby (on Rails) developer w <img style="vertical-align: middle;" src="images/adtaily.png" /></p>
+      </div>
+
+      <div class="slide">
+        <h1>diff ruby1.8 ruby1.9</h1>
+        <ul class="incremental">
+          <li>
+            Zmiany w interpreterze
+            <ul>
+              <li>maszyna wirtualna (YARV)</li>
+              <li>natywne wątki</li>
+            </ul>
+          </li>
+          <li>
+            Zmiany w języku
+            <ul>
+              <li>składnia</li>
+              <li>semantyka</li>
+              <li>core</li>
+              <li>stdlib</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Maszyna wirtualna YARV</h1>
+        <ul class="incremental">
+          <li>interpretacja "bajtkodu"
+            <ul>
+              <li>do tej pory bezpośrednia interpretacja sparsowanego drzewa (parse tree) - wolne i niefektywne</li>
+            </ul>
+          </li>
+
+          <li>
+            natywne wątki zastąpiły zielone wątki (green threads)
+            <ul>
+              <li>obecny GIL (Global Interpreter Lock) nie pozwala na jednoczesne działanie</li>
+              <li>można zwolnić GIL na poziomie API C - funkcja rb_thread_blocking_region</li>
+            </ul>
+          </li>
+
+          <li>mniejsze zużycie pamięci</li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Wydajność</h1>
+        <ul class="incremental">
+          <li>There are lies, statistics, and benchmarks</li>
+          <li>
+            Proste benchmarki - 2-4x szybszy od 1.8
+            <p style="text-align: center;">
+            <img src="images/bm-chart.png" alt="ruby interpreters benchmark chart"/>
+            </p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Wydajność cd.</h1>
+        <ul class="incremental">
+          <li>
+            W praktyce może zależeć od wielu czynników, np.:
+            <ul>
+              <li>wykorzystania GC</li>
+              <li>wielkości stosu</li>
+              <li>rodzaju wąskiego gardła</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Nowy operator lambdy: -&gt;</h1>
+
+        <ul class="incremental">
+          <li class="blank">
+            <%= source :file => "new_lambda01.rb" %>
+          </li>
+          <li>w odróżnieniu od tradycyjnej lambdy jest to operator a nie metoda</li>
+          <li>dodana by umożliwić używania domyślnych parametrów, &amp;block params</li>
+          <li class="blank">
+            <%= source :file => "new_lambda02.rb" %>
+            <%= output "ruby-trunk", "new_lambda02.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Stara lambda na sterydach</h1>
+
+        <ul class="incremental">
+          <li>ponoć były problemy (parser) by stara lambda obsługiwała domyślne parametry, &amp;block params</li>
+          <li>przyszedł ktoś mądry, który tego nie wiedział i zrobił to</li>
+          <li class="blank">
+            <%= source :file => "new_lambda03.rb" %>
+            <%= output "ruby-trunk", "new_lambda03.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Splat operator</h1>
+
+        <ul class="incremental">
+          <li>operator splat jest teraz bardziej elastyczny</li>
+          <li class="blank">
+            <%= source :file => "splat01.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Bloki</h1>
+
+        <ul class="incremental">
+          <li>zmieniony zasięg parametrów - lokalny w stosunku do bloku</li>
+          <li class="blank">
+            <%= source :file => "block_params01.rb" %>
+          </li>
+
+          <li>
+            semantyka parametrów taka jak metod, a więc nie zadziała już
+            <%= source :file => "block_params02.rb" %>
+           </li>
+
+          <li>proc jest aliasem do Proc.new, a nie jak do tej pory lambda</li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Parametry metod</h1>
+
+        <ul class="incremental">
+          <li>
+            wymagane parametry po opcjonalnych
+          </li>
+          <li class="blank"><%= source :file => "method_params01.rb" %></li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Parametry metod cd.</h1>
+
+        <ul class="incremental">
+          <li>grupowanie parametrów</li>
+          <li class="blank"><%= source :file => "method_params02.rb" %></li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Hash</h1>
+        <ul class="incremental blank">
+          <li>
+            Nowa składnia dla kluczy będącymi symbolami:
+            <%= source :file => "new_hash_syntax01.rb" %>
+          </li>
+          <li>
+          <%= source :file => "new_hash_syntax02.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>BasicObject - nadklasa Object</h1>
+
+        <ul class="incremental">
+          <p style="text-align: center;">
+            <img src="images/class-hierarchy.png" />
+          </p>
+          <li>Object.superclass =&gt; BasicObject</li>
+          <li>bazową (domyślną) klasą pozostaje wciąż Object</li>
+          <li>przydatne przy pisaniu wrapperów, proxy</li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Enumerable - nowe metody take, take_while, group_by, drop, min_by, max_by, count, minmax</h1>
+
+        <ul class="incremental">
+          <li>sporo nowych metod</li>
+          <li>Enumerable.instance_methods(false).size - 22 dla 1.8, 47 dla 1.9</li>
+          <li class="blank">
+            <%= source :file => "enumerable01.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Zewnętrzne iteratory - Enumerator</h1>
+
+        <ul class="incremental">
+          <li>wewnętrzne iteratory są prostsze w użyciu</li>
+          <li>ale mają wady - jak iterować równolegle po wielu kolekcjach?</li>
+          <li class="blank">
+            <%= source :file => "enumerator01.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Enumerator#with_index</h1>
+
+        <ul class="incremental">
+          <li>map_with_index, select_with_index - zawsze czegoś brakuje</li>
+          <li>Enumerator#with_index opakowuje iterator dodając dodatkowy parametr indeksu</li>
+          <li class="blank">
+            <%= source :file => "enumerator02.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Enumerator.new</h1>
+
+        <ul class="incremental">
+          <li>tworzy nowy, zewnętrzny iterator</li>
+          <li>nie trzeba konwertować za pomocą enum_for</li>
+          <li class="blank">
+            <%= source :file => "enumerator03.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Kodowania znaków</h1>
+
+        <ul class="incremental">
+          <li>do tej pory brak wsparcia kodowania znaków</li>
+          <li>String nie jest już "enumerable" (wyliczenie czego? linii? znaków? bajtów?)</li>
+          <li>each_line, each_char, each_byte</li>
+          <li>poprawna obsługa metod takich jak reverse, size (length), [], slice itp.</li>
+          <li class="blank">
+            <%= source :file => "encoding01.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Klasa Encoding</h1>
+
+        <ul class="incremental">
+          <li>każdy string posiada jakieś kodowanie</li>
+          <li>różne stringi mogą posiadać różne kodowania w "tym samym programie"</li>
+
+          <li class="blank">
+            <%= source :file => "encoding02.rb" %>
+            <%= output "ruby-trunk", "encoding02.rb" %>
+          </li>
+
+          <li>Nowa pseudostała __ENCODING__</li>
+          <li class="blank">
+            <%= source :file => "encoding03.rb" %>
+            <%= output "ruby-trunk", "encoding03.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Konwersja do innego kodowania</h1>
+
+        <ul class="incremental">
+          <li class="blank">
+            <%= source :file => "encoding05.rb" %>
+            <%= output "ruby-trunk", "encoding05.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>(default_)external_encoding, (default_)internal_encoding</h1>
+
+        <ul class="incremental">
+          <li class="blank">
+            <%= source :file => "encoding04.rb" %>
+            <%= output "ruby-trunk", "encoding04.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Hash - zachowana kolejność kluczy</h1>
+        <%= source :file => "ordered_hash.rb" %>
+        <ul class="blank">
+          <li>
+          1.8
+          <%= output "ruby1.8", "ordered_hash.rb" %>
+          </li>
+
+          <li>
+          1.9
+          <%= output "ruby-trunk", "ordered_hash.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Aktualizacja silnika regexpów (Oniguruma)</h1>
+
+        <ul class="incremental">
+          <li class="blank">
+            <%= source :file => "regexp01.rb" %>
+          </li>
+          <li class="blank">
+            <%= source :file => "regexp02.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Symbol#to_proc wbudowane w core</h1>
+
+        <ul class="incremental">
+          <li class="blank">
+            <%= source :file => "symbol_to_proc01.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Object#tap</h1>
+
+        <ul class="incremental">
+          <li>ułatwiaj debugowanie długich, łańcuchowych wywołań</li>
+          <li class="blank">
+            <%= source :file => "tap01.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Nowa biblioteka w stdlib: prime</h1>
+
+        <ul class="incremental">
+          <li>biblioteka operująca na liczbach pierwszych</li>
+          <li>wyznaczanie liczb pierwszych, sprawdzanie liczby czy pierwsza</li>
+          <li class="blank">
+            <%= source :file => "prime01.rb" %>
+          </li>
+          <li class="blank">
+            <%= source :file => "prime02.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1>Ruby vs Python</h1>
+        <ul class="incremental blank">
+          <li>
+<pre>$ cat hello_world.rb 
+puts "Hello World!"
+</pre>
+          </li>
+          <li>
+<pre>$ ruby-trunk -v
+ruby 1.9.2dev (2009-10-17 trunk 25387) [x86_64-linux]
+</pre>
+          </li>
+          <li>
+          <%= output "ruby-trunk", "hello_world.rb" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1 style="font-size: 3em; margin: 2em 0 1.5em;">Hello World!</h1>
+      </div>
+
+      <div class="slide">
+        <h1>Ruby vs Python</h1>
+        <ul class="incremental blank">
+          <li>
+<pre>
+$ cat hello_world.py
+print "Hello World!"
+</pre>
+          </li>
+          <li>
+<pre>
+$ python3 --version
+Python 3.0.1+
+</pre>
+          </li>
+          <li>
+          <%= output "python3", "hello_world.py" %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="slide">
+        <h1 style="font-size: 3em; margin: 2em 0 1.5em;">SyntaxError: invalid syntax</h1>
+      </div>
+
+      <div class="slide">
+        <h1 style="margin: 3em 0 1.5em;">Dziękuję za uwagę!</h1>
+        <h3>Radosław Bułat</h3>
+        <h4>Blog: <a href="http://radarek.jogger.pl">http://radarek.jogger.pl</a></h4>
+        <p>Ruby (on Rails) developer w <img style="vertical-align: middle;" src="images/adtaily.png" /></p>
+      </div>
+
+    </div>
+
+  </body>
+</html>
+

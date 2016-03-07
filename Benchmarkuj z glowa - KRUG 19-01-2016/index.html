@@ -1,0 +1,1019 @@
+
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>reveal.js – The HTML Presentation Framework</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/serif.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/mono-blue.css" id="syntax">
+
+    <style type="text/css">
+      .reveal .label {
+        font-size: 70%;
+        float: left;
+        text-align: center;
+        display: inline-block;
+        border-radius: 0.25rem;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+        margin: 0.25em;
+        background-color: #888888;
+      }
+
+      .reveal .label .correct {
+        background-color: #6FB96B;
+      }
+
+      .reveal pre {
+        font-size: 0.7em;
+        width: 100%;
+      }
+
+      .reveal pre code {
+        max-height: none;
+      }
+
+      .reveal .slides section .fragment.highlight-foo,
+      .reveal .slides section .fragment.highlight-current-foo {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .reveal .slides section .fragment.highlight-foo.visible {
+        background-color: #ff2c2d;
+      }
+    </style>
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <script src="lib/js/jquery-1.12.0.min.js"></script>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h2>Benchmarkuj z głową</h2>
+
+          <img src="images/SelfBenchmark-296x300.png" />
+
+          <p>Radosław Bułat</p>
+
+          <p>KRUG, styczeń 2016r. </p>
+        </section>
+
+        <section>
+          <h2>Disclaimer</h2>
+
+          <p>
+            Wszystkie testy zostały przeprowadzone na komputerze Macbook Pro z systemem OS X El Capitan, wyposażonym w procesor Intel Core i5 2,6 Ghz, 8GB Ram i dysk SSD. Programy, jeśli nie wyspecyfikowano inaczej, były odpalane przy użyciu interpretera rubiego MRI w wersji 2.3.0p0 (64bit).
+          </p>
+        </section>
+
+        <section>
+          <section>
+            <h2>Co to są benchmarki?</h2>
+            <img src="images/QuestionMark.jpg" width="250" />
+          </section>
+
+          <section>
+            <p>
+              Testy przeprowadzone w celu zmierzenia wydajności programu.
+            </p>
+          </section>
+
+          <section>
+            <p>
+              Zwykle miarą jest czas, ale może to być także np. zużycie pamięci, ilości operacji I/O itp.
+            </p>
+          </section>
+
+          <section>
+            <p>
+              Testować można na różnych poziomie abstrakcji. Ta prezentacja dotyczy głównie mikro-benchmarków.
+            </p>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Po co benchmarkać?</h2>
+
+            <img src="images/QuestionMark2.jpg" width="250" />
+          </section>
+
+          <section><p>Możesz nauczyć się przeprowadzać eksperymenty i poprawnie wyciągać wnioski.</p></section>
+          <section><p>Poznasz lepiej kod, który testujesz (własny, gema, frameworka).</p></section>
+          <section><p>Poznasz dogłębniej język Ruby i/lub konkretną implementację (MRI w naszym przypadku).</p></section>
+          <section><p>Nauczysz się algorytmów, technik optymalizacyjnych i innych sztuczek.</p></section>
+          <section data-background="images/bradshawface.gif" style="color: white;">
+            <p>Dla zabawy!</p>
+          </section>
+        </section>
+
+        <section>
+          <h2>Jak poprawnie mierzyć?</h2>
+
+          <img src="images/meter.jpg" width="400" />
+        </section>
+
+        <section>
+          <section>
+            <p>Czy to jest dobra metoda?</p>
+
+            <pre class="bash"><code data-trim>
+              $ time ruby my_script.rb
+            </code></pre>
+          </section>
+
+          <section>
+            <p>Tak, jeśli mierzymy faktycznie wykonanie <strong>całego</strong> skryptu (bootstrap VM, ładowanie gemów itp.).</p>
+
+            <p class="fragment">
+              Zwykle mierzymy jednak tylko <strong>wycinek</strong> kodu, więc ta metoda się nie sprawdza.
+            </p>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <p>Manualnie</p>
+
+            <pre class="ruby"><code class="line-numbers" data-trim>
+start = Time.now
+N     = 100_000
+N.times { "foo-bar-baz".gsub(/-/, ".") }
+stop  = Time.now
+
+puts "String#gsub: #{stop - start}s"
+            </code></pre>
+
+            <pre class="text"><code data-trim>
+String#gsub: 0.223087s
+            </code></pre>
+          </section>
+
+          <section>
+            <p>Ok, ale komu chciałoby się pisać taki kod za każdym razem?</p>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <p>biblioteka benchmark (stdlib)</p>
+
+            <pre class="ruby"><code class="line-numbers" data-trim>
+require "benchmark"
+
+N = 100_000
+
+Benchmark.bm do |x|
+  x.report("String#gsub") do
+    N.times { "foo-bar-baz".gsub(/-/, ".") }
+  end
+
+  x.report("String#tr") do
+    N.times { "foo-bar-baz".tr("-", ".") }
+  end
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text">                 user     system      total        real
+String#gsub  0.220000   0.000000   0.220000 (  0.218242)
+String#tr    0.030000   0.000000   0.030000 (  0.031729)</pre>
+
+          </section>
+
+          <section>
+            <p>
+              Co z wyznaczaniem odpowiedniej wartości N?
+            </p>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <p>gem benchmark-ips</p>
+
+            <pre class="ruby"><code class="line-numbers" data-trim>
+require "benchmark/ips"
+
+Benchmark.ips do |x|
+  x.report("String#gsub") do
+    "foo-bar-baz".gsub(/-/, ".")
+  end
+
+  x.report("String#tr") do
+    "foo-bar-baz".tr("-", ".")
+  end
+
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code data-trim>
+Calculating -------------------------------------
+         String#gsub    33.159k i/100ms
+           String#tr   103.818k i/100ms
+-------------------------------------------------
+         String#gsub    436.803k (± 6.5%) i/s -      2.188M
+           String#tr      2.732M (± 7.5%) i/s -     13.600M
+
+Comparison:
+           String#tr:  2731656.6 i/s
+         String#gsub:   436802.9 i/s - 6.25x slower
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <p>A jest x razy wolniejsze od B. To nie zawsze takie proste.</p>
+
+            <img src="images/something.jpg" width=300 />
+          </section>
+
+          <section>
+            <pre class="ruby"><code class="line-numbers" data-trim>
+require "benchmark/ips"
+
+N   = ARGV[0].to_i
+arr = (1..N).to_a
+
+Benchmark.ips do |x|
+  x.report("Array#include?") do
+    arr.include?(rand(arr.size))
+  end
+
+  x.report("Array#bsearch") do
+    v = rand(arr.size)
+    arr.bsearch { |e| e &gt;= v }
+  end
+
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <div>
+              <p>$ ruby include-vs-bsearch.rb 10_000</p>
+              <pre class="text"><code data-trim>
+ Array#bsearch:   957959.3 i/s
+Array#include?:    33271.6 i/s - 28.79x slower
+              </code></pre>
+            </div>
+
+            <br />
+
+            <div class="fragment">
+              <p>$ ruby include-vs-bsearch.rb 1_000</p>
+              <pre class="text"><code data-trim>
+ Array#bsearch:  1165847.6 i/s
+Array#include?:   299444.3 i/s - 3.89x slower
+              </code></pre>
+            </div>
+          </section>
+
+          <section>
+            <h3>28.79x slower vs 3.89x slower</h3>
+            <h3>Dlaczego?</h3>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <p>Złożoność czasowa</p>
+
+            <img src="images/Pocketwatch_cutaway_drawing.jpg" width="500" />
+          </section>
+
+          <section>
+            <p>gem benchmark-bigo</p>
+
+            <pre class="ruby"><code class="line-numbers" data-trim>
+require "benchmark/bigo"
+
+Benchmark.bigo do |x|
+  x.min_size = 0
+  x.generator { |size| (1..size).to_a }
+
+  x.report("Array#include?") do |arr, size|
+    arr.include?(rand(size))
+  end
+
+  x.report("Array#bsearch") do |arr, size|
+    v = rand(size)
+    arr.bsearch { |e| e &gt;= v }
+  end
+
+  x.chart!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <img src="images/include-vs-bsearch-chart.jpg" />
+          </section>
+
+          <section>
+            <p>Array#include? - O(n)</p>
+            <p>Array#bsearch  - O(log n)</p>
+          </section>
+
+          <section>
+            <p>Metoda bsearch ma mniejszą złożoność. Czy zatem powinniśmy zawsze ją preferować?</p>
+          </section>
+
+          <section>
+            <img src="images/include-vs-bsearch-chart2.jpg" />
+          </section>
+
+          <section>
+            <img src="images/include-vs-bsearch-chart3.jpg" width="500" />
+          </section>
+
+          <section>
+            <p>$ ruby include-vs-bsearch.rb 50</p>
+            <pre class="text"><code data-trim>
+Array#include?:  2443856.0 i/s
+Array#bsearch:  1627241.2 i/s - 1.50x slower
+            </code></pre>
+
+            <br />
+
+            <p>$ ruby include-vs-bsearch.rb 150</p>
+            <pre class="text"><code data-trim>
+ Array#bsearch:  1395988.6 i/s
+Array#include?:  1389880.7 i/s - 1.00x slower
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Dlaczego?</h2>
+            <pre class="ruby"><code class="line-numbers" data-trim>
+arr.include?(v)
+            </code></pre>
+
+            <p class="fragment">Przekazuje sterowanie do implementacji w C. Metoda Fixnum#== nie jest wywoływana, chyba, że zostanie nadpisana.</p>
+
+            <br />
+
+            <pre class="ruby"><code class="line-numbers" data-trim>
+arr.bsearch { |e| e &gt= v }
+            </code></pre>
+
+            <p class="fragment">Przekazuje sterowanie do implementacji w C, ale każde porównanie to koszt wywołania i wykonania bloku, który jest zaimplementowany w czystym Rubym. </p>
+          </section>
+        </section>
+
+        <section>
+          <h2>Jak zmierzyć atom linijką?</h2>
+
+          <img src="images/atom.jpg" />
+        </section>
+
+        <section>
+          <section>
+            <p>Problem: porównać wydajność operacji Fixnum#+ i Fixnum#*</p>
+          </section>
+
+          <section>
+            <pre class="ruby"><code class="line-numbers" data-trim>
+require "benchmark/ips"
+
+Benchmark.ips do |x|
+  x.report("Fixnum#+") { 2+3 }
+  x.report("Fixnum#*") { 2*3 }
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code data-trim>
+Fixnum#+: 10701978.3 i/s
+Fixnum#*:  9650968.6 i/s - 1.11x slower
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="ruby" style="font-size: 0.55em;"><code class="line-numbers" data-trim>
+require "benchmark/ips"
+
+Benchmark.ips do |x|
+  x.report("Fixnum#+") { 2+3; 2+3; 2+3; 2+3; 2+3; 2+3; 2+3; 2+3; 2+3; 2+3; }
+  x.report("Fixnum#*") { 2*3; 2*3; 2*3; 2*3; 2*3; 2*3; 2*3; 2*3; 2*3; 2*3; }
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code data-trim>
+Fixnum#+:  5481473.1 i/s
+Fixnum#*:  3938857.4 i/s - 1.39x slower
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <p>Zwielokrotnienie mierzonej operacji w bloku powoduje zniwelowanie jakiegoś narzutu.</p>
+            <p>Co jest tym narzutem?</p>
+          </section>
+
+          <section>
+            <h3>Blok opakowujący benchmark + pętla, która go wykonuje!</p>
+          </section>
+
+          <section>
+            <pre class="ruby"><code class="line-numbers" data-trim>
+require "benchmark/ips"
+
+Benchmark.ips do |x|
+  x.report("empty block") { }
+  x.report("Fixnum#+") { 2+3 }
+  x.report("Fixnum#*") { 2*3 }
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code data-trim>
+empty block: 11844492.5 i/s
+   Fixnum#+: 11076597.5 i/s - 1.07x slower
+   Fixnum#*:  9812807.9 i/s - 1.21x slower
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <p>Jak zniwelować ten narzut?</p>
+          </section>
+
+          <section>
+            <p>Zamiast bloku przekazać odpowiednio skonstruowany string, który zostanie przed testem skompilowany.</p>
+          </section>
+
+          <section>
+            <pre class="ruby"><code class="line-numbers" data-trim>
+require "benchmark/ips"
+
+Benchmark.ips do |x|
+  x.report("Fixnum#+", "2+3;" * 10_000)
+  x.report("Fixnum#*", "2*3;" * 10_000)
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code data-trim>
+Fixnum#+:     9538.4 i/s
+Fixnum#*:     6099.6 i/s - 1.56x slower
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Niektóre przekonania są mitami.</h2>
+
+            <img src="images/icarus.jpg" width="500" />
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <pre class="ruby"><code class="line-numbers" data-trim>
+require "benchmark/ips"
+
+Benchmark.ips do |x|
+  x.report("downcase",  '"FOOBAR".downcase;'  * 1_000)
+  x.report("downcase!", '"FOOBAR".downcase!;' * 1_000)
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code data-trim>
+downcase!:    16357.6 i/s
+ downcase:    11034.8 i/s - 1.48x slower
+            </code></pre>
+          </section>
+
+          <section>
+            <p>Czy metody modyfikujące obiekt w miejscu są zawsze szybsze?</p>
+          </section>
+
+          <section>
+            <h2>Nie zawsze!</h2>
+          </section>
+
+          <section>
+            <pre class="ruby"><code class="line-numbers" data-trim>
+require "benchmark/ips"
+
+Benchmark.ips do |x|
+  x.report("gsub",  '"foobarbaz".gsub(/./, "z");'  * 10_000)
+  x.report("gsub!", '"foobarbaz".gsub!(/./, "z");' * 10_000)
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code data-trim>
+gsub!:       28.9 i/s
+ gsub:       28.9 i/s - 1.00x slower
+            </code></pre>
+          </section>
+
+          <section>
+            <p>To może gsub! zużywa mniej pamięci niż gsub?</p>
+          </section>
+
+          <section>
+            <pre class="ruby" style="font-size: 0.6em"><code class="line-numbers" data-trim>
+require "objspace"
+
+GC.disable
+
+def memory_usage
+  `ps -o rss= -p #{Process.pid}`.to_i / 1024
+end
+
+before = memory_usage
+1_000_000.times { "foo-bar-baz".gsub(/-/, ".") }
+after  = memory_usage
+
+puts "Allocated memory: #{after - before}MB"
+puts "Allocated strings: #{ObjectSpace.count_objects[:T_STRING]}"
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code data-trim>
+Allocated memory: 696MB
+Allocated strings: 5010147
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="ruby" style="font-size: 0.6em"><code class="line-numbers" data-trim>
+require "objspace"
+
+GC.disable
+
+def memory_usage
+  `ps -o rss= -p #{Process.pid}`.to_i / 1024
+end
+
+before = memory_usage
+1_000_000.times { "foo-bar-baz".gsub!(/-/, ".") }
+after  = memory_usage
+
+puts "Allocated memory: #{after - before}MB"
+puts "Allocated strings: #{ObjectSpace.count_objects[:T_STRING]}"
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code data-trim>
+Allocated memory: 695MB
+Allocated strings: 5010147
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <h2>Dociekliwość i spostrzegawczość</h2>
+
+          <img src="images/Binoculars.png" width="400" />
+        </section>
+
+        <section>
+          <section>
+            <h3>a = 1<br/>
+              b = 2<br />
+              vs</br>
+              a, b = 1, 2
+            </h3>
+          </section>
+
+          <section>
+            <p>Ktoś kiedyś poczynił taki o to benchmark</p>
+          </section>
+
+          <section>
+            <pre class="ruby" style="font-size: 0.6em"><code class="line-numbers" data-trim>
+require 'benchmark/ips'
+
+def parallel
+  a, b, c, d, e, f, g, h = 1, 2, 3, 4, 5, 6, 7, 8
+end
+
+def sequential
+  a = 1
+  b = 2
+  c = 3
+  d = 4
+  e = 5
+  f = 6
+  g = 7
+  h = 8
+end
+
+Benchmark.ips do |x|
+  x.report('Parallel')   { parallel }
+  x.report('Sequential') { sequential }
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code data-trim>
+Sequential:  6257646.4 i/s
+  Parallel:  2770688.2 i/s - 2.26x slower
+            </code></pre>
+          </section>
+
+          <section>
+            Ktoś inny zauważył, że przypisanie równoległe ma dodatkowy koszt utworzenia nowej tablicy, ale tylko gdy jest wykonywane jako ostatnia instrukcja w metodzie.</p>
+          </section>
+
+          <section>
+            <pre class="text"><code data-trim>
+pry(main)&gt; parallel
+=&gt; [1, 2, 3, 4, 5, 6, 7, 8]
+pry(main)&gt; sequential
+=&gt; 8
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="ruby" style="font-size: 0.6em"><code class="line-numbers" data-trim>
+require 'benchmark/ips'
+
+def parallel
+  a, b, c, d, e, f, g, h = 1, 2, 3, 4, 5, 6, 7, 8
+  nil
+end
+
+def sequential
+  a = 1
+  b = 2
+  c = 3
+  d = 4
+  e = 5
+  f = 6
+  g = 7
+  h = 8
+  nil
+end
+
+Benchmark.ips do |x|
+  x.report('Parallel')   { parallel }
+  x.report('Sequential') { sequential }
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code>  Parallel:  7317266.9 i/s
+Sequential:  6149955.8 i/s - 1.19x slower</code></pre>
+          </section>
+
+          <section>
+            <p>Jeśli faktycznie przypisanie równoległe miałoby być szybsze to pytajmy "dlaczego?". Bądźmy dociekliwi.</p>
+          </section>
+
+          <section>
+            <p>Powtórzmy benchmark za pomocą wersji ze stringiem.</p>
+          </section>
+
+          <section>
+            <pre class="ruby" style="font-size: 0.6em"><code class="line-numbers" data-trim>
+require 'benchmark/ips'
+
+Benchmark.ips do |x|
+  x.report('Parallel',
+    'a, b, c, d, e, f, g, h = 1, 2, 3, 4, 5, 6, 7, 8;'        * 10_000)
+
+  x.report('Sequential',
+    'a = 1; b = 2; c = 3; d = 4; e = 5; f = 6; g = 7; h = 8;' * 10_000)
+
+  x.compare!
+end
+					  </code></pre>
+					</section>
+
+          <section>
+            <pre class="text"><code data-trim>
+Sequential:     3031.0 i/s
+  Parallel:     3029.8 i/s - 1.00x slower
+						</code></pre>
+          </section>
+
+          <section>
+						<p>Znajdź różnicę</p>
+
+            <pre class="ruby" style="width: 300px; display: inline-block; vertical-align: middle;"><code class="line-numbers" data-trim>
+a = 1
+b = 2
+					  </code></pre>
+
+            <div style="display: inline-block; vertical-align: middle; margin: auto 2em;">vs</div>
+
+            <pre class="ruby" style="width: 300px; display: inline-block; vertical-align: middle;"><code class="line-numbers" data-trim>
+a = 1; b = 2
+					  </code></pre>
+          </section>
+
+          <section>
+            <h2>;</h2>
+            <p>?</p>
+          </section>
+
+          <section>
+            <pre class="ruby" style="font-size: 0.6em"><code class="line-numbers" data-trim>
+require 'benchmark/ips'
+
+def parallel
+  a, b, c, d, e, f, g, h = 1, 2, 3, 4, 5, 6, 7, 8
+  nil
+end
+
+def sequential
+  a = 1;
+  b = 2;
+  c = 3;
+  d = 4;
+  e = 5;
+  f = 6;
+  g = 7;
+  h = 8;
+  nil
+end
+
+Benchmark.ips do |x|
+  x.report('Parallel')   { parallel }
+  x.report('Sequential') { sequential }
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code> Parallel:  7291129.5 i/s
+Sequential:  6203390.0 i/s - 1.18x slower</code></pre>
+          </section>
+
+          <section>
+						<p>Znajdź inną różnicę</p>
+
+            <pre class="ruby" style="width: 300px; display: inline-block; vertical-align: middle;"><code class="line-numbers" data-trim>
+a = 1
+b = 2
+					  </code></pre>
+
+            <div style="display: inline-block; vertical-align: middle; margin: auto 2em;">vs</div>
+
+            <pre class="ruby" style="width: 300px; display: inline-block; vertical-align: middle;"><code class="line-numbers" data-trim>
+a = 1; b = 2
+					  </code></pre>
+          </section>
+
+          <section>
+            <h2>\n</h2>
+            <p>?</p>
+          </section>
+
+          <section>
+            <pre class="ruby" style="font-size: 0.6em"><code class="line-numbers" data-trim>
+require 'benchmark/ips'
+
+def parallel
+  a, b, c, d, e, f, g, h = 1, 2, 3, 4, 5, 6, 7, 8
+  nil
+end
+
+def sequential
+  a = 1; b = 2; c = 3; d = 4; e = 5; f = 6; g = 7; h = 8;
+  nil
+end
+
+Benchmark.ips do |x|
+  x.report('Parallel')   { parallel }
+  x.report('Sequential') { sequential }
+  x.compare!
+end
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="text"><code>  Parallel:  7247107.0 i/s
+Sequential:  7227897.0 i/s - 1.00x slower</code></pre>
+          </section>
+
+					<section>
+            <h2>WHAT?</h2>
+          </section>
+
+          <section>
+            <img src="images/we-need-to-go-deeper.jpg" />
+          </section>
+
+          <section>
+            <pre class="ruby" style="font-size: 0.6em"><code class="line-numbers" data-trim>
+puts RubyVM::InstructionSequence.compile("a = 1; b = 2;").disasm
+						</code></pre>
+					</section>
+
+					<section>
+            <pre class="text" style="font-size: 0.7em"><code data-trim>
+0000 trace            1
+0002 putobject_OP_INT2FIX_O_1_C_
+0003 setlocal_OP__WC__0 3
+0005 putobject        2
+0007 dup
+0008 setlocal_OP__WC__0 2
+0010 leave
+            </code></pre>
+          </section>
+
+          <section>
+            <pre class="ruby" style="font-size: 0.6em"><code class="line-numbers" data-trim>
+puts RubyVM::InstructionSequence.compile("a = 1;\nb = 2;").disasm
+						</code></pre>
+					</section>
+
+					<section>
+            <pre class="text" style="font-size: 0.7em"><code data-trim>
+0000 trace            1
+0002 putobject_OP_INT2FIX_O_1_C_
+0003 setlocal_OP__WC__0 3
+0005 trace            1
+0007 putobject        2
+0009 dup
+0010 setlocal_OP__WC__0 2
+0012 leave
+            </code></pre>
+          </section>
+
+					<section>
+            <p>diff</p>
+
+            <pre class="text" style="font-size: 0.7em">
+ trace            1
+ putobject_OP_INT2FIX_O_1_C_
+ setlocal_OP__WC__0 3
+<span style="color: green;">+trace            1</span>
+ putobject        2
+ dup
+ setlocal_OP__WC__0 2
+ leave</pre>
+          </section>
+
+          <section>
+            <p>trace 1</p>
+          </section>
+
+          <section>
+            <a href="http://ruby-doc.org/core-2.3.0/TracePoint.html">http://ruby-doc.org/core-2.3.0/TracePoint.html</a>
+          </section>
+
+          <section>
+            <pre class="ruby" style="width: 500px; display: inline-block; vertical-align: middle;"><code data-trim>
+def foo
+  a, b = 1, 2
+end
+
+def bar
+  a = 1
+  b = 2
+end
+
+TracePoint.new(:line) do |tp|
+  p [tp.event, tp.lineno]
+end.enable
+
+foo
+bar
+						</code></pre>
+
+            <div style="display: inline-block; vertical-align: middle; margin: auto 2em;"></div>
+
+            <pre class="fragment text" style="width: 200px; display: inline-block; vertical-align: top;"><code data-trim>
+[:line, 14]
+[:line, 2]
+[:line, 15]
+[:line, 6]
+[:line, 7]
+            </code></pre>
+					</section>
+
+					<section>
+						<p>disable_trace.rb</p>
+
+            <pre class="ruby"><code class="line-numbers" data-trim>
+RubyVM::InstructionSequence.compile_option = {
+  trace_instruction: false
+}
+            </code></pre>
+					</section>
+
+          <section>
+            <p>$ ruby assignment.rb</p>
+            <pre class="text"><code>  Parallel:  7295158.6 i/s
+Sequential:  6285277.7 i/s - 1.16x slower</code></pre>
+
+						<br />
+
+            <p class="fragment" data-fragment-index=1>$ ruby -r./disable_trace assignment.rb</p>
+            <pre class="text fragment" data-fragment-index=1><code>Sequential:  7915213.2 i/s
+  Parallel:  7896697.9 i/s - 1.00x slower</code></pre>
+          </section>
+        </section>
+
+        <section>
+					<h2>Podsumowanie</h2>
+        </section>
+
+        <section>
+					<h2>Pytania?</h2>
+        </section>
+
+        <section>
+					<h2>Dziękuję!</h2>
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true },
+          { src: 'plugin/notes/notes.js', async: true },
+					{ src: 'lib/js/line-numbers.js'}
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

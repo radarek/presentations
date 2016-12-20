@@ -1,0 +1,700 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Crystal - better Ruby?</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/serif.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/mono-blue.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<style type="text/css">
+			.reveal pre {
+				font-size: 0.7em;
+				width: 100%;
+			}
+
+			.reveal pre code {
+				max-height: none;
+			}
+		</style>
+
+		<script src="lib/js/jquery-1.12.0.min.js"></script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+          <h2>Crystal - better Ruby?</h2>
+
+          <img src="images/crystal-lang-logo-300x300.png" />
+
+          <p>Radosław Bułat</p>
+
+          <p>KRUG, grudzień 2016r. </p>
+        </section>
+
+				<section>
+					<h3>About me</h3>
+
+					<p class="fragment">I work at <a href="http://codesthq.com/">Codest</a>.</p>
+					<p class="fragment">We develop webapps but sometimes we make things just for fun.</p>
+					<img class="fragment" src="images/arcade.jpg" width="500" />
+				</section>
+
+				<section>
+					<section>
+						<h2>What is Crystal?</h2>
+
+						<img src="images/crystals.png" width="400" />
+					</section>
+
+					<section>
+						<h3>Crystal is a programming language with following characteristics</h3>
+						<ul>
+							<li class="fragment">syntax very similar to Ruby</li>
+							<li class="fragment">statically type-checked</li>
+							<li class="fragment">have compile-time evaluation and generation of code</li>
+							<li class="fragment">compile to efficient native code</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>How much Crystal is similar to Ruby?</h2>
+						<img src="images/brothers.png" width="400" />
+					</section>
+
+					<section>
+						<h3>Syntax</h3>
+  					<pre class="ruby"><code class="line-numbers" data-trim>
+puts "Hello World!"
+
+arr = [1, 2, 3, 4, 5]
+puts "#{arr} includes 3" if arr.includes?(3)
+
+if m = "--123--".match(/(\d+)/)
+  puts m[0].to_i
+end
+
+puts "127.0.0.1".split(".").reverse.join(".")
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>OOP - classes</h3>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+class Greeter
+  def initialize(name = "there")
+    @name = name
+  end
+
+  def salute
+    puts "Hello #{@name}!"
+  end
+end
+
+Greeter.new("world").salute
+Greeter.new.salute
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>OOP - mixins</h3>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+module Mixin
+  def foo
+    puts "foo from Mixin called"
+  end
+end
+
+class MyClass
+  include Mixin
+end
+
+MyClass.new.foo
+					</code></pre>
+					</section>
+
+					<section>
+						<h3>Blocks &amp; Procs</h3>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+def twice
+  yield "here"
+  yield "there"
+end
+
+twice { |s| puts "Hello #{s}!" }
+
+f = -> { puts "Proc called" }
+twice(&amp;f)
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>API</h3>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+puts 1.upto(999)
+  .select { |e| e % 3 == 0 || e % 5 == 0 }
+  .reduce { |acc, e| acc + e }
+						</code></pre>
+
+						<br />
+
+						<pre class="ruby fragment"><code class="line-numbers" data-trim>
+File.open("/etc/hosts") do |file|
+  file.each_line { |line| puts line }
+end
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>Core classes &amp; modules</h3>
+						<p>
+							Array, String, Class, Enumerable, Comparable, ENV, File, Hash, Nil, Range, Regex...
+						</p>
+					</section>
+
+					<section>
+						<h3>Looks familiar?</h3>
+					</section>
+
+					<section>
+						<h3>Learning curve for Ruby programmers is very gentle.</h3>
+					</section>
+
+					<section>
+						<h3>You can use the same programming techniques, best practices and idioms.</h3>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Crystal is statically typed</h2>
+						<img src="images/sphere.png" width="400" />
+					</section>
+
+					<section>
+						<h3>Specifying types in most cases is optional.</h3>
+					</section>
+
+					<section>
+						<h3>Compiler still can verify types during compilation phase.</h3>
+					</section>
+
+					<section>
+						<h3>Type inference</h3>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+a = 1        # Int32
+puts a + 123 # Int32#+(Int32) exists
+						</code></pre>
+
+						<pre class="fragment"><code class="text" data-trim>
+$ crystal build type_inference1.cr
+$ ./type_inference1
+124
+						</code></pre>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+a = 1          # Int32
+puts a + "123" # Int32#+(String) - doesn't exist
+						</code></pre>
+
+						<pre class="fragment" style="font-size: 0.55em;"><code class="text" data-trim>
+$ crystal build type_inference2.cr
+Error in type_inference2.cr:2: no overload matches 'Int32#+' with type String
+Overloads are:
+ - Int32#+(other : Int8)
+ - Int32#+(other : Int16)
+ - Int32#+(other : Int32)
+ - Int32#+(other : Int64)
+ - Int32#+(other : UInt8)
+ - Int32#+(other : UInt16)
+ - Int32#+(other : UInt32)
+ - Int32#+(other : UInt64)
+ - Int32#+(other : Float32)
+ - Int32#+(other : Float64)
+ - Number#+()
+
+puts a + "123"
+       ^
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>Can variable store multiple types?</h3>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+a = (rand(2) == 0 ? 1 : "1") # Int32 | String
+puts a * 2                   # both Int32#*(Int32)
+                             # and String#*(Int32) exist
+						</code></pre>
+
+						<pre class="fragment" style="font-size: 0.55em;"><code class="text" data-trim>
+$ crystal run type_inference3.cr
+2
+$ crystal run type_inference3.cr
+11
+						</code></pre>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+a = (rand(2) == 0 ? 1 : "1") # Int32 | String
+puts a.abs                   # String#abs doesn't exist
+						</code></pre>
+
+						<pre class="fragment" style="font-size: 0.55em;"><code class="text" data-trim>
+$ crystal build type_inference4.cr
+Error in type_inference4.cr:2: undefined method 'abs' for String
+(compile-time type is (Int32 | String))
+
+puts a.abs
+       ^~~
+						</code></pre>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+a = (rand(2) == 0 ? 1 : "1") # Int32 | String
+if a.is_a?(Int32)
+  puts a.abs                 # Int32#abs
+end
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>What about method arguments?</h3>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+def add(a : Int32, b : Int32)
+  a + b
+end
+
+puts add(10, 20)
+						</code></pre>
+						<pre class="fragment" style="font-size: 0.50em;"><code class="text" data-trim>
+30
+foobar
+						</code></pre>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+def add(a : Int32, b : Int32)
+  a + b
+end
+
+puts add("foo", "bar")
+						</code></pre>
+						<pre class="fragment" style="font-size: 0.50em;"><code class="text" data-trim>
+Error in type_inference7.cr:5: no overload matches 'add' with types String, String
+Overloads are:
+ - add(a : Int32, b : Int32)
+
+puts add("foo", "bar")
+     ^~~
+						</code></pre>
+					</section>
+
+				  <section>
+						<h3>Type inference applies to method arguments too.</h3>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+def add(a, b)
+  a + b
+end
+
+puts add(10, 20)
+puts add("foo", "bar")
+						</code></pre>
+						<pre class="fragment" style="font-size: 0.50em;"><code class="text" data-trim>
+30
+foobar
+						</code></pre>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+def add(a, b)
+  a + b
+end
+
+puts add(true, false)
+						</code></pre>
+						<pre class="fragment" style="font-size: 0.50em;"><code class="text" data-trim>
+Error in type_inference9.cr:5: instantiating 'add(Bool, Bool)'
+
+puts add(true, false)
+     ^~~
+
+in type_inference9.cr:2: undefined method '+' for Bool
+
+  a + b
+    ^
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h3>Null Pointer Exception</h3>
+						<img src="images/bomb.png" width="400" />
+					</section>
+
+					<section>
+						<h3>The problem of nil value.</h3>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+loop do
+  word = gets
+  break if word.upcase =~ /^QUIT/
+  puts word.chomp.reverse
+end
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>Let's run it with Ruby.</h3>
+					</section>
+
+					<section>
+						<pre style="font-size: 0.45em;"><code class="text" data-trim>
+$ ruby nil.cr
+foo
+oof
+bar
+rab
+^D
+nil.cr:3:in `block in &lt;main&gt;': undefined method `upcase' for nil:NilClass (NoMethodError)
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>Crystal detects that kind of error during compilation phase.</h3>
+					</section>
+
+					<section>
+						<pre style="font-size: 0.50em;"><code class="text" data-trim>
+$ crystal build nil.cr
+in nil.cr:1: instantiating 'loop()'
+
+loop do
+^~~~
+
+in nil.cr:3: undefined method 'upcase' for Nil (compile-time type is (String | Nil))
+
+  break if word.upcase =~ /^QUIT/
+                ^~~~~~
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>Let's fix it.</h3>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+loop do
+  word = gets
+  break if word.nil? || word.upcase =~ /^QUIT/
+  puts word.chomp.reverse
+end
+						</code></pre>
+					</section>
+
+					<section>
+						<pre style="font-size: 0.50em;"><code class="text" data-trim>
+$ crystal run nil-fix.cr
+foo
+oof
+bar
+rab
+^D
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Performance</h2>
+						<img src="images/bicycle.png" width="400" />
+					</section>
+
+					<section>
+						<h3>Crystal compiles into native binary using LLVM.</h3>
+					</section>
+
+					<section>
+						<h3>Expect it to be faster than Ruby.</h3>
+						<h3>How much?</h3>
+					</section>
+
+					<section>
+						<p>What is the smallest number that is evenly divisible by all of the numbers from 1 to 20?</p>
+						<p style="font-size: 0.5em; text-align: right;"><a href="https://projecteuler.net/problem=5">https://projecteuler.net/problem=5</a></p>
+					</section>
+
+					<section>
+						<h3>Warning: naive solution</h3>
+					</section>
+
+					<section>
+						<h3>Ruby</h3>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+puts 1.upto((2..20).reduce(:*))
+  .each { |n| break n if (2..20).all? { |e| n % e == 0 } }
+						</code></pre>
+						<pre class="fragment" style="font-size: 0.6em;"><code class="text" data-trim>
+$ time ruby euler.rb
+232792560
+ruby euler.rb  115,36s user 0,80s system 95% cpu 2:01,88 total
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>Crystal</h3>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+puts 1.upto((2..20).reduce(1_u64) { |acc, e| acc * e })
+  .each { |n| break n if (2..20).all? { |e| n % e == 0 } }
+						</code></pre>
+						<pre class="fragment" style="font-size: 0.6em;"><code class="text" data-trim>
+$ crystal build --release euler.cr &amp;&amp; time ./euler
+232792560
+./euler  1,65s user 0,01s system 98% cpu 1,679 total
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>Crystal faster ~72x</h3>
+					</section>
+
+					<section>
+						<h3>Kemal vs Sinatra</h3>
+						<pre class="ruby" style="width: 400px; display: inline-block; vertical-align: left;"><code class="line-numbers" data-trim>
+require "kemal"
+
+logging false
+
+get "/" do
+  "Hello World"
+end
+
+Kemal.run
+						</code></pre>
+						<pre class="ruby" style="width: 400px; display: inline-block; vertical-align: top;"><code class="line-numbers" data-trim>
+require "sinatra"
+
+set :logging, false
+
+get "/" do
+  "Hello world"
+end
+						</code></pre>
+					</section>
+
+					<section>
+						<h4>wrk -c 100 -d 10 -t 1 http:&#47;&#47;localhost:3000</h4>
+						<pre style="width: 400px; display: inline-block; vertical-align: left;">
+Requests/sec:  63258.85
+Transfer/sec:  7.24MB
+						</pre>
+						<pre style="width: 400px; display: inline-block; vertical-align: top;">
+Requests/sec:  3344.73
+Transfer/sec:  601.04KB
+						</pre>
+					</section>
+
+					<section>
+						<h3>Crystal faster ~19x</h3>
+					</section>
+
+					<section>
+						<h3>Array#sort!</h3>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+require "benchmark"
+
+arr = (1..100_000_000).to_a.shuffle
+puts Benchmark.measure { arr.sort! }
+						</code></pre>
+						<pre class="fragment" style="font-size: 0.6em;"><code class="text" data-trim>
+$ ruby array_bm.cr
+ 28.890000   1.190000  30.080000 ( 31.266588)
+ 						</code></pre>
+						<pre class="fragment" style="font-size: 0.6em;"><code class="text" data-trim>
+$ crystal run --release array_bm.cr
+  9.890000   0.040000   9.930000 (  10.187163)
+ 						</code></pre>
+					</section>
+
+					<section>
+						<h3>Crystal faster ~3x</h3>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h3>Macros</h3>
+
+						<img src="images/tool.jpg" width="500" />
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+{% puts "This runs during compilation" %}
+puts "This runs during execution"
+						</code></pre>
+
+						<pre class="fragment" style="font-size: 0.6em;"><code class="text" data-trim>
+$ crystal build macro1.cr
+"This runs during compilation"
+						</code></pre>
+
+						<pre class="fragment" style="font-size: 0.6em;"><code class="text" data-trim>
+$ ./macro1
+This runs during execution
+						</code></pre>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+macro define_method(name, body)
+  def {{name}}
+    {{body}}
+  end
+end
+
+class Foo
+  define_method bar, "baz"
+
+  # def bar
+  #   "baz"
+  # end
+end
+						</code></pre>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+macro assert(assertion)
+  unless {{assertion}}
+    puts "Assertion {{assertion}} failed!"
+  end
+end
+
+assert 1 == 2
+						</code></pre>
+						<pre class="fragment" style="font-size: 0.6em;"><code class="text" data-trim>
+$ crystal run macro3.cr
+Assertion 1 == 2 failed!
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>Macros enables metaprogramming.</h3>
+					</section>
+
+					<section>
+						<pre class="ruby"><code class="line-numbers" data-trim>
+class Person < ActiveRecord::Model
+  adapter postgres
+
+  table_name people
+
+  primary id                 : Int
+  field last_name            : String
+  field first_name           : String
+  field number_of_dependents : Int
+end
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>It's different from Ruby approach.</h3>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Summary</h2>
+
+						<img src="images/question.jpg" width="250" />
+					</section>
+
+					<section>
+						<h3>Is it worth to start programming in Crystal?</h3>
+					</section>
+
+					<section>
+						<h3>Looks like Ruby</h3>
+						<h3 class="fragment">Quacks like Ruby</h3>
+						<h3 class="fragment">Faster than Ruby</h3>
+						<h3 class="fragment">Catches more bugs earlier</h3>
+						<h3 class="fragment">It is Crystal</h3>
+					</section>
+
+					<section>
+						<h3>Happy crystaling!</h3>
+					</section>
+
+					<section>
+						<h3>Thank you!</h3>
+					</section>
+
+					<section>
+						<h3>Questions?</h3>
+					</section>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'lib/js/line-numbers.js'}
+				]
+			});
+		</script>
+	</body>
+</html>

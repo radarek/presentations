@@ -5,3 +5,4 @@ This repository contains some presentation I gave on various programming meeting
 * 08.07.2010 [GIT - jedyny system kontroli wersji jakiego potrzebujesz](https://radarek.github.io/presentations/git-presentation.pdf)
 * 19.01.2016 [Benchmarkuj z glowa](https://radarek.github.io/presentations/Benchmarkuj%20z%20glowa%20-%20KRUG%2019-01-2016/)
 * 20.12.2016 [Crystal - better Ruby?](https://radarek.github.io/presentations/Crystal%20-%20better%20Ruby%3F%20-%20KRUG%2018.12.2016/#/)
+* 17.10.2022 [Mis-code-ception](https://radarek.github.io/mis-code-ception-KRUG-2022/slides/) + [code](https://github.com/radarek/mis-code-ception-KRUG-2022)

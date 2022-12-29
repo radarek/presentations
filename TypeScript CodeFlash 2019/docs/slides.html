@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>TypeScript - czy warto?</title>
+    <link rel="stylesheet" href="./css/reveal.css" />
+    <link rel="stylesheet" href="_assets/./assets/style.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/monokai.css" />
+    <link rel="stylesheet" href="./css/print/paper.css" type="text/css" media="print" />
+    <link rel="stylesheet" href="./_assets/assets/impact.css" />
+    <link rel="stylesheet" href="./_assets/assets/style.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section ><section data-markdown><script type="text/template">
+
+## TypeScript
+### czy warto?
+
+Radosław Bułat, Codest
+
+Kraków, CodeFlash 2019.09.24</script></section><section data-markdown><script type="text/template">
+## Agenda
+
+<ul>
+  <li class="fragment">JavaScript i jego problemy</li>
+  <li class="fragment">Jak próbowano je rozwiązać</li>
+  <li class="fragment">TypeScript i jego filozofia</li>
+  <li class="fragment">Kilka wybranych cech języka</li>
+  <li class="fragment">Demo</li>
+</ul>
+</script></section></section><section  data-markdown><script type="text/template">
+### JavaScript i jego problemy
+
+<ul>
+  <li class="fragment">Łatwo zacząć... ale potem robi się coraz ciężej</li>
+  <li class="fragment">Dynamiczne typowane, słabe typowanie</li>
+  <li class="fragment">Różnice między przeglądarkami</li>
+  <li class="fragment">Co z używaniem nowych funkcjonalności ES?</li>
+</ul>
+</script></section><section  data-markdown><script type="text/template">
+### Jak próbowano je rozwiązać?
+
+<ul>
+  <li class="fragment">Java applets, Adobe Flash</li>
+  <li class="fragment">GWT - Google Web Toolkit</li>
+  <li class="fragment">CoffeeScript</li>
+</ul>
+</script></section><section  data-markdown><script type="text/template">
+### TypeScript i jego filozofia
+
+<ul>
+  <li class="fragment">Nie wymyślajmy koła na nowo, skorzystajmy z tego co jest i ulepszmy to co się da</li>
+  <li class="fragment">TypeScript to nadzbiór JavaScriptu</li>
+  <li class="fragment">Statyczne typowanie</li>
+</ul>
+</script></section><section  data-markdown><script type="text/template">
+### Kilka wybranych cech języka
+</script></section><section  data-markdown><script type="text/template">
+### Demo
+</script></section><section  data-markdown><script type="text/template"></script></section></div>
+    </div>
+
+    <script src="./js/reveal.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // Optional libraries used to extend on reveal.js
+      var deps = [
+        { src: './plugin/markdown/marked.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+        { src: './plugin/markdown/markdown.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+        { src: './plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+        { src: './plugin/zoom-js/zoom.js', async: true },
+        { src: './plugin/notes/notes.js', async: true },
+        { src: './plugin/math/math.js', async: true }
+      ];
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        dependencies: deps
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal.getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"transition":"slide"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+</html>

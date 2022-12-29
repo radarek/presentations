@@ -1,0 +1,20 @@
+{
+  "name": "codest-presentation-template",
+  "version": "1.0.0",
+  "description": "Codest presentation template",
+  "main": "index.js",
+  "author": "Radosław Bułat <radek.bulat@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "reveal-md slides.md -w --highlight-theme monokai",
+    "build:pdf": "reveal-md slides.md --print dist/slides.pdf",
+    "build:release": "reveal-md slides.md --highlight-theme monokai --css assets/impact.css,assets/style.css --static docs && mkdir -p docs/_assets/assets && cp -R assets/* docs/_assets/assets && mkdir -p docs/assets && cp -R assets/* docs/assets"
+  },
+  "devDependencies": {
+    "reveal-md": "^3.0.4"
+  },
+  "resolutions": {
+    "lodash": "4.17.13"
+  }
+}

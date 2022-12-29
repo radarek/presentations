@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>reveal-md</title>
+    <link rel="stylesheet" href="./../../../css/reveal.css" />
+    <link rel="stylesheet" href="./../../../css/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./../../../css/highlight/monokai.css" />
+    <link rel="stylesheet" href="./../../../css/print/paper.css" type="text/css" media="print" />
+    <link rel="stylesheet" href="./../../../_assets/assets/impact.css" />
+    <link rel="stylesheet" href="./../../../_assets/assets/style.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"># Markdown Demo
+
+
+
+## External 1.1
+
+Content 1.1
+
+<aside class="notes"><p>This will only appear in the speaker notes window.</p>
+<h2 id="external-12">External 1.2</h2>
+<p>Content 1.2</p>
+<h2 id="external-2">External 2</h2>
+<p>Content 2.1</p>
+<h2 id="external-31">External 3.1</h2>
+<p>Content 3.1</p>
+<h2 id="external-32">External 3.2</h2>
+<p>Content 3.2</p>
+<h2 id="external-33">External 3.3</h2>
+<p><img src="https://s3.amazonaws.com/static.slid.es/logo/v2/slides-symbol-512x512.png" alt="External Image"></p>
+</aside></script></section></div>
+    </div>
+
+    <script src="./../../../js/reveal.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // Optional libraries used to extend on reveal.js
+      var deps = [
+        { src: './../../../plugin/markdown/marked.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+        { src: './../../../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+        { src: './../../../plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+        { src: './../../../plugin/zoom-js/zoom.js', async: true },
+        { src: './../../../plugin/notes/notes.js', async: true },
+        { src: './../../../plugin/math/math.js', async: true }
+      ];
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        dependencies: deps
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal.getQueryHash() || {};
+
+      var options = extend(defaultOptions, {}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+</html>

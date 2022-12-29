@@ -1,0 +1,10 @@
+@font-face {
+    font-family: "Impact";
+    src: url("./impact-webfont.woff") format('woff');
+}
+
+@font-face {
+    font-family: "Impact";
+    src: url("./impact-webfont-bold.woff") format('woff');
+    font-weight: bold;
+}
